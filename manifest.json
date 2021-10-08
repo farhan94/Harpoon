@@ -8,12 +8,7 @@
         {
             "run_at": "document_idle",
             "js": ["content.js"],
-            "matches": ["*://*.opensea.io/activity/*"]
-        },
-        {
-            "run_at": "document_start",
-            "js": ["checkout.js"],
-            "matches": ["*://*.opensea.io/assets/*"]
+            "matches": ["*://*.opensea.io/*"]
         }
     ],
     "background": {
