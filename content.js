@@ -110,26 +110,27 @@ function delay(ms) {
 The following function will start the auto checkout process 
 */
 function autoCheckOut(link) {
-    chrome.runtime.sendMessage({redirect: true});
+    // chrome.runtime.sendMessage({redirect: true});
     link.click()
-    
+    check()
 }
 
 
 async function monitorForPageChange() {
     while(true) {
+
         chrome.storage.local.get(["pageChanged"], function(result){
             // console.log(result)
             if(result.pageChanged != null && result.pageChanged == true){
-                console.log(result)
-                chrome.storage.local.set({"pageChanged": false}, function(){console.log("reinitalized page changed")})
-                chrome.storage.local.get(["autoCheckOutOn"], function(result){
-                    console.log(result)
-                    if(result.autoCheckOutOn == true){
-                        chrome.storage.local.set({"autoCheckOutOn": false}, function(){console.log("initalized")})
-                        check()
-                    }
-                })
+                // console.log(result)
+                // chrome.storage.local.set({"pageChanged": false}, function(){console.log("reinitalized page changed")})
+                // chrome.storage.local.get(["autoCheckOutOn"], function(result){
+                //     console.log(result)
+                //     if(result.autoCheckOutOn == true){
+                //         chrome.storage.local.set({"autoCheckOutOn": false}, function(){console.log("initalized")})
+                //         check()
+                //     }
+                // })
                 init()
             }
         });
@@ -209,7 +210,16 @@ function changeCollection(mutationRecord) {
     });
 }
 
+//if auth
 
+chrome.storage.local.get(["auth"], function(result){
+    console.log(result)
+    if(result.auth){
+        init()
+    } else {
+
+    }
+})
 init()
 
 monitorForPageChange()
