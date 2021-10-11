@@ -1,18 +1,40 @@
+function delay(ms) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(ms)
+      }, ms )
+    })
+  }
+
+/*
+The following function will start the auto checkout process 
+*/
+function autoCheckOut(link) {
+    link.click()
+    check()
+}
+
 /*
 This init function will initially scan for the activity panel and continually scan for it if it can't find it
 */
 async function init(){
-    if(location.href.includes("opensea.io/activity")) {
-        // activity flow
-        initActivity()
-    } else if (location.href.includes("opensea.io/collection")) {
-        // collection flow
-        initCollection()
-    } else if (location.href.includes("opensea.io/assets")) {
-        // assets flow
-        return
-    } else {
-        return
+    let auth = await getFromChromeStorageLocal("harpoon");
+    let d = new Date()
+    if(auth && auth > d.getTime()) {
+        if(location.href.includes("opensea.io/activity")) {
+            // activity flow
+            initActivity()
+        } else if (location.href.includes("opensea.io/collection")) {
+            // collection flow
+            return
+            // initCollection() //commenting out collection flow due to changes on opensea
+            //future: make a listener that will listen for buy now click
+        } else if (location.href.includes("opensea.io/assets")) {
+            // assets flow
+            return
+        } else {
+            return
+        }
     }
     
 }
@@ -39,8 +61,8 @@ async function initActivity() {
         await delay(500)
         elements = document.getElementsByClassName("Row--cell Row--cellIsSpaced EventHistory--item-col")
     }
-    console.log("got ele")
-    console.log(elements.length)
+    // console.log("got ele")
+    // console.log(elements.length)
     for(let i = 0; i < elements.length; i++) {
 
         let linksList = elements[i].getElementsByTagName("a")
@@ -51,7 +73,7 @@ async function initActivity() {
             link.onclick = function() {autoCheckOut(linksList[0])}
             link.title = "Purchase"
             link.href = "javascript:void(0);" //linksList[0].href
-            link.textContent = "Purchase"
+            link.textContent = "Buy Now"
             link.className = "purchase"
             elements[i].appendChild(link)
         }
@@ -85,7 +107,7 @@ async function initCollection(){
             link.onclick = function() {autoCheckOut(linksList[0])}
             link.title = "Purchase"
             link.href = "javascript:void(0);" //linksList[0].href
-            link.textContent = "Purchase"
+            link.textContent = "Buy Now"
             link.className = "purchase"
             gridCells[i].appendChild(link)
         }
@@ -97,63 +119,23 @@ async function initCollection(){
 
 }
 
-function delay(ms) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(ms)
-      }, ms )
-    })
-  }
-
-
-/*
-The following function will start the auto checkout process 
-*/
-function autoCheckOut(link) {
-    // chrome.runtime.sendMessage({redirect: true});
-    link.click()
-    check()
-}
-
-
 async function monitorForPageChange() {
-    while(true) {
+    let auth = await getFromChromeStorageLocal("harpoon");
+    let d = new Date()
+    if(auth && auth > d.getTime()) {
+        while(true) {
 
-        chrome.storage.local.get(["pageChanged"], function(result){
-            // console.log(result)
-            if(result.pageChanged != null && result.pageChanged == true){
-                // console.log(result)
-                // chrome.storage.local.set({"pageChanged": false}, function(){console.log("reinitalized page changed")})
-                // chrome.storage.local.get(["autoCheckOutOn"], function(result){
-                //     console.log(result)
-                //     if(result.autoCheckOutOn == true){
-                //         chrome.storage.local.set({"autoCheckOutOn": false}, function(){console.log("initalized")})
-                //         check()
-                //     }
-                // })
-                init()
-            }
-        });
-        
-        await delay(500)
+            chrome.storage.local.get(["pageChanged"], function(result){
+                if(result.pageChanged != null && result.pageChanged == true){
+                    init()
+                }
+            });
+            
+            await delay(500)
 
+        }
     }
 }
-
-let observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutationRecord) {    //runs for each change to target declared below
-        console.log("detected change")
-        if(location.href.includes("opensea.io/activity")) {
-            // activity flow
-            changeActivity(mutationRecord)
-        } else if (location.href.includes("opensea.io/collection")) {
-            // collection flow
-            changeCollection(mutationRecord)
-        } else {
-            return
-        }
-    })
-});
 
 function changeActivity(mutationRecord) {
     mutationRecord.addedNodes.forEach(function(addedNode) {
@@ -172,7 +154,7 @@ function changeActivity(mutationRecord) {
                         link.onclick = function() {autoCheckOut(linksList[0])}
                         link.title = "Purchase"
                         link.href = "javascript:void(0);"
-                        link.textContent = "Purchase"
+                        link.textContent = "Buy Now"
                         itemList[i].appendChild(link) //created and added a button to kick off purchase script
                     }
                 }
@@ -201,7 +183,7 @@ function changeCollection(mutationRecord) {
                     link.onclick = function() {autoCheckOut(linksList[0])}
                     link.title = "Purchase"
                     link.href = "javascript:void(0);" //linksList[0].href
-                    link.textContent = "Purchase"
+                    link.textContent = "Buy Now"
                     link.className = "purchase"
                     gridCellContentList[0].appendChild(link)
                 }
@@ -209,22 +191,6 @@ function changeCollection(mutationRecord) {
         }
     });
 }
-
-//if auth
-
-chrome.storage.local.get(["auth"], function(result){
-    console.log(result)
-    if(result.auth){
-        init()
-    } else {
-
-    }
-})
-init()
-
-monitorForPageChange()
-
-
 
 async function check(){
     let retries = 0
@@ -278,9 +244,55 @@ async function check(){
         }
         checkoutParent = document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 Modalreact__ModalFooter-sc-xyql9f-4 CheckoutModalreact__StyledFooter-sc-3k02w3-0 dBFmez hLwTLZ iaPZMm")
     }
-    document.getElementById("tos").click()
+    let tos = document.getElementById("tos")
+    if(tos) {
+        tos.click();
+    }
     let checkout = checkoutParent[0].getElementsByTagName("button")[0]
-    checkout.click()
+    checkout.click();
 
 
 }
+
+let observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutationRecord) {    //runs for each change to target declared below
+        console.log("detected change")
+        if(location.href.includes("opensea.io/activity")) {
+            // activity flow
+            changeActivity(mutationRecord)
+        } else if (location.href.includes("opensea.io/collection")) {
+            // collection flow
+            changeCollection(mutationRecord)
+        } else {
+            return
+        }
+    })
+});
+
+const getFromChromeStorageLocal = async (key) => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(key, function (result) {
+            if (result[key] === undefined) {
+                reject();
+            }
+            else {
+                resolve(result[key]);
+            }
+        });
+    });
+};
+
+//if auth
+
+// chrome.storage.local.get(["auth"], function(result){
+//     console.log(result)
+//     if(result.auth){
+//         init()
+//     } else {
+
+//     }
+// })
+
+init()
+
+monitorForPageChange()

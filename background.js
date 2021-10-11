@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     switch (message.message) {
         case 'login':
             console.log('login');
-            handleLogin();
+            doAuth();
             break;
         // case 'get-auth-fe':
         //     let response = await readLocalStorage('auth');
@@ -35,15 +35,8 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     return true;
 });
 
-// let filter = {urls: ["https://opensea.io/_next/static/chunks/pages/account-c2f01039aee9b9b1f07e.js"]};
 
-// let opt_extraInfoSpec = [];
-
-// chrome.webRequest.onCompleted.addListener(
-//     callback, filter, opt_extraInfoSpec);
-
-
-function handleLogin() {
+function doAuth() {
     chrome.tabs.create({
         url: 'https://discord.com/api/oauth2/authorize?client_id=896236076384026625&redirect_uri=https%3A%2F%2Ffk46b8dvm3.execute-api.us-east-1.amazonaws.com%2Fharpoon-auth&response_type=code&scope=guilds',
         active: false
@@ -58,7 +51,7 @@ function handleLogin() {
                 if (tab.id) {
                     chrome.scripting.executeScript({
                         func: () => {
-                            return JSON.parse(document.getElementsByTagName('pre')[0].innerText); //change to return token
+                            return JSON.parse(document.getElementsByTagName('pre')[0].innerText); 
                         },
                         target: {tabId: tab.id}
                      }, function (result) {
@@ -68,36 +61,15 @@ function handleLogin() {
                             if (tab.id) {
                                 chrome.tabs.remove(tab.id);
                             }
-
+                            if(result[0].result.status == 'success'){
+                                var d1 = new Date();
+                                d1.getTime()
+                                chrome.storage.local.set({harpoonToken: result[0].result.token.access_token});
+                                chrome.storage.local.set({harpoon: d1.getTime()+86400000});
+                            } 
                             clearInterval(waitForCodeInterval);
-
                         }
-                        // }
                     });
-                    // chrome.scripting.executeScript(tab.id, {
-                    //     code: 'document.documentElement.outerHTML'
-                    // }, function (result) {
-                    //     console.log(result)
-                    //     // if (result[0] && result[0].includes('auth')) {
-                    //     //     const auth = result[0].split('auth: "')[1].split('"')[0];
-                    //     //     // setStorage('auth', auth)
-                    //     //     //eslint-disable-next-line
-                    //     //     chrome.storage.local.set({
-                    //     //         auth: auth
-                    //     //     });
-                    //     //     sendMsg({
-                    //     //         type: "authenticated"
-                    //     //     }); // tells frontend to set state to authenticated
-                    //     //     sendMessageContent({
-                    //     //         type: "update-auth",
-                    //     //         auth: auth
-                    //     //     });
-                    //         if (tab.id) {
-                    //             chrome.tabs.remove(tab.id);
-                    //         }
-                    //         clearInterval(waitForCodeInterval);
-                    //     // }
-                    // });
                 }
             }
             catch (e) {

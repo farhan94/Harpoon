@@ -14,6 +14,6 @@ button.addEventListener('mouseleave', () => {
 
 button.addEventListener('click', () => {
     chrome.runtime.sendMessage({ message: 'login' }, function (response) {
-        if (response === 'success') window.location.replace("./popup2.html");
+        if (response === 'success') window.location.replace("./popup.html");
     });
 });
