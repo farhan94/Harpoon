@@ -125,7 +125,6 @@ async function initAsset() {
         await delay(1000)
         return;
     }
-    window.scrollTo(0, 0);
     let tradeStation = document.getElementsByClassName("TradeStation--main");
     let retires = 0
     while (tradeStation.length == 0) {
@@ -142,6 +141,7 @@ async function initAsset() {
     btn.id = "harpoon-qb";
     btn.onclick = function() { check() };
     tradeStation[0].prepend(btn);
+    window.scrollTo(0, 0);
 }
 
 async function monitorForPageChange() {
