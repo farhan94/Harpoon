@@ -1,9 +1,13 @@
 {
     "name": "Harpoon",
-    "description": "Sniping fish in the open sea.",
+    "description": "Fishing on the open sea.",
     "version": "0.0.1",
     "manifest_version": 3,
     "permissions": ["storage", "activeTab", "scripting", "tabs", "webNavigation"],
+    "host_permissions": [
+        "*://*.opensea.io/*",
+        "https://fk46b8dvm3.execute-api.us-east-1.amazonaws.com/*"
+      ],
     "content_scripts" : [
         {
             "run_at": "document_idle",
@@ -13,6 +17,9 @@
     ],
     "background": {
         "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "./html/popup.html"
     }
 
 }
