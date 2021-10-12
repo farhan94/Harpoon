@@ -31,7 +31,7 @@ async function init(){
             //future: make a listener that will listen for buy now click
         } else if (location.href.includes("opensea.io/assets")) {
             // assets flow
-            return
+            initAsset()
         } else {
             return
         }
@@ -109,7 +109,7 @@ async function initCollection(){
             link.href = "javascript:void(0);" //linksList[0].href
             link.textContent = "Buy Now"
             link.className = "purchase"
-            gridCells[i].appendChild(link)
+            gridCells[i].appendChild(link);
         }
         
     }
@@ -119,15 +119,40 @@ async function initCollection(){
 
 }
 
+async function initAsset() {
+    //just need to put a link or button on the page that calls the check() function
+    if(document.getElementById("harpoon-qb")){
+        await delay(1000)
+        return;
+    }
+    window.scrollTo(0, 0);
+    let tradeStation = document.getElementsByClassName("TradeStation--main");
+    let retires = 0
+    while (tradeStation.length == 0) {
+        await delay(100)
+        retries++;
+        if(retries > 100){
+            console.log("tradestation not found");
+            return;
+        }
+        tradeStation = document.getElementsByClassName("TradeStation--main");
+    }
+    let btn = document.createElement("button");
+    btn.innerHTML = "Quick Buy";
+    btn.id = "harpoon-qb";
+    btn.onclick = function() { check() };
+    tradeStation[0].prepend(btn);
+}
+
 async function monitorForPageChange() {
     let auth = await getFromChromeStorageLocal("harpoon");
     let d = new Date()
     if(auth && auth > d.getTime()) {
         while(true) {
 
-            chrome.storage.local.get(["pageChanged"], function(result){
+            await chrome.storage.local.get(["pageChanged"], async function(result){
                 if(result.pageChanged != null && result.pageChanged == true){
-                    init()
+                    await init()
                 }
             });
             
@@ -194,16 +219,24 @@ function changeCollection(mutationRecord) {
 
 async function check(){
     let retries = 0
-    while(document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 Buttonreact__StyledButton-sc-glfma3-0 kmCSYg gMiESj").length == 0) {
-            await delay(10)
-            retries++
-            if(retries == 1000){
-                console.log("took too long")
-                return
-            }
+    let btnv1 = document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 Buttonreact__StyledButton-sc-glfma3-0 kmCSYg gMiESj")
+    let btnv2 = document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 Buttonreact__StyledButton-sc-glfma3-0 kmCSYg fzwDgL")
+    while(btnv1.length == 0 && btnv2.length == 0) {
+        await delay(10)
+        retries++
+        if(retries == 1000){
+            console.log("took too long")
+            return
+        }
+        btnv1 = document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 Buttonreact__StyledButton-sc-glfma3-0 kmCSYg gMiESj")
+        btnv2 = document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 Buttonreact__StyledButton-sc-glfma3-0 kmCSYg fzwDgL")
     }
     retries = 0
-    document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 Buttonreact__StyledButton-sc-glfma3-0 kmCSYg gMiESj")[0].click()
+    if(btnv1.length != 0) {
+        btnv1[0].click()
+    } else {
+        btnv2[0].click()
+    }
     while(document.getElementById("review-confirmation") == null && document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 Modalreact__ModalFooter-sc-xyql9f-4 CheckoutModalreact__StyledFooter-sc-3k02w3-0 dBFmez hLwTLZ iaPZMm").length == 0) {
         await delay(10)
         retries++
@@ -211,7 +244,6 @@ async function check(){
             console.log("took too long")
             return
         }
-        document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 Buttonreact__StyledButton-sc-glfma3-0 kmCSYg gMiESj")[0].click()
     }
 
     retries = 0
@@ -282,17 +314,5 @@ const getFromChromeStorageLocal = async (key) => {
     });
 };
 
-//if auth
-
-// chrome.storage.local.get(["auth"], function(result){
-//     console.log(result)
-//     if(result.auth){
-//         init()
-//     } else {
-
-//     }
-// })
-
 init()
-
 monitorForPageChange()

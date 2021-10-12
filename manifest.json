@@ -1,6 +1,6 @@
 {
     "name": "Harpoon",
-    "description": "Sniping fish in the open sea.",
+    "description": "Fishing on the open sea.",
     "version": "0.0.1",
     "manifest_version": 3,
     "permissions": ["storage", "activeTab", "scripting", "tabs", "webNavigation"],

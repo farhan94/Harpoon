@@ -19,18 +19,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
             console.log('login');
             doAuth();
             break;
-        // case 'get-auth-fe':
-        //     let response = await readLocalStorage('auth');
-        //     sendResponse({ auth: response });
-        //     sendMsg({ type: 'authenticated' });
-        //     break;
-        // case 'refresh-auth':
-        //     let responseBg = await readLocalStorage('auth');
-        //     sendMessageContent({
-        //         type: "authenticated",
-        //         auth: responseBg
-        //     });
-        //     break;
     }
     return true;
 });
