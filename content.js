@@ -63,6 +63,7 @@ async function initActivity() {
     }
     // console.log("got ele")
     // console.log(elements.length)
+    // let style = getStyle();
     for(let i = 0; i < elements.length; i++) {
 
         let linksList = elements[i].getElementsByTagName("a")
@@ -74,7 +75,7 @@ async function initActivity() {
             link.title = "Purchase"
             link.href = "javascript:void(0);" //linksList[0].href
             link.textContent = "Buy Now"
-            link.className = "purchase"
+            link.className = "buy-now-harpoon"
             elements[i].appendChild(link)
         }
     }
@@ -97,7 +98,7 @@ async function initCollection(){
     }
     //add purchase link to each item same logic as activity
     for(let i = 0; i < gridCells.length; i++) {
-        let purchaseLinks = gridCells[i].getElementsByClassName("purchase")
+        let purchaseLinks = gridCells[i].getElementsByClassName("buy-now-harpoon")
         if (purchaseLinks.length == 0) {
                 
             let linksList = gridCells[i].getElementsByTagName("a")
@@ -108,7 +109,7 @@ async function initCollection(){
             link.title = "Purchase"
             link.href = "javascript:void(0);" //linksList[0].href
             link.textContent = "Buy Now"
-            link.className = "purchase"
+            link.className = "buy-now-harpoon"
             gridCells[i].appendChild(link);
         }
         
@@ -180,6 +181,7 @@ function changeActivity(mutationRecord) {
                         link.title = "Purchase"
                         link.href = "javascript:void(0);"
                         link.textContent = "Buy Now"
+                        link.className("buy-now-harpoon");
                         itemList[i].appendChild(link) //created and added a button to kick off purchase script
                     }
                 }
@@ -198,7 +200,7 @@ function changeCollection(mutationRecord) {
 
             if (gridCellContentList.length != 0) {
                 //gridcell should have something in it
-                let purchaseLinks = gridCellContentList[0].getElementsByClassName("purchase")
+                let purchaseLinks = gridCellContentList[0].getElementsByClassName("buy-now-harpoon")
                 if (purchaseLinks.length == 0) {
                         
                     let linksList = gridCellContentList[0].getElementsByTagName("a")
@@ -209,7 +211,7 @@ function changeCollection(mutationRecord) {
                     link.title = "Purchase"
                     link.href = "javascript:void(0);" //linksList[0].href
                     link.textContent = "Buy Now"
-                    link.className = "purchase"
+                    link.className = "buy-now-harpoon"
                     gridCellContentList[0].appendChild(link)
                 }
             }
@@ -313,6 +315,23 @@ const getFromChromeStorageLocal = async (key) => {
         });
     });
 };
+
+function getStyle() {
+    let style = document.createElement('style');
+    
+style.innerHTML = `.buy-now {
+font: bold 11px Arial;
+text-decoration: none;
+background-color: #EEEEEE;
+color: #333333;
+padding: 2px 6px 2px 6px;
+border-top: 1px solid #CCCCCC;
+border-right: 1px solid #333333;
+border-bottom: 1px solid #333333;
+border-left: 1px solid #CCCCCC;
+}`;
+return style;
+}
 
 init()
 monitorForPageChange()
