@@ -1,3 +1,11 @@
+function delay(ms) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(ms)
+      }, ms )
+    })
+  }
+
 const button = document.querySelector('button');
 
 button.addEventListener('mouseover', () => {
@@ -29,13 +37,21 @@ const getFromChromeStorageLocal = async (key) => {
     });
 };
 
-chrome.storage.local.get("harpoon", function (result) {
-    if (result["harpoon"] === undefined || result["harpoon"] == null) {
-        reject();
-    }
-    else {
-        let p = document.getElementById("exp");
-        let d = new Date(result["harpoon"]);
-        p.textContent = "Login expires on " + d.toString();
-    }
-});
+async function updateExp(){
+    while (true) {
+        chrome.storage.local.get("harpoon", function (result) {
+            if (result["harpoon"] === undefined || result["harpoon"] == null) {
+                reject();
+            }
+            else {
+                let p = document.getElementById("exp");
+                let d = new Date(result["harpoon"]);
+                p.textContent = "Login expires on " + d.toString();
+            }
+        });
+        await delay(1000)
+        }
+}
+
+updateExp();
+
