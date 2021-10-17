@@ -9,7 +9,7 @@
 //     alert("hello");
 // };
 
-chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
+chrome.tabs.onUpdated.addListener(function(details) {
     chrome.storage.local.set({"pageChanged": true}, function(){console.log("page set")})
 });
 
