@@ -20,11 +20,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
             doAuth();
             break;
     }
-    let exp = await getFromChromeStorageLocal("harpoon");
-    let d = new Date()
-    if(exp && exp > d.getTime()) {
-       sendResponse({success: true, expiration: exp});
-    }
     return true;
 });
 
@@ -73,16 +68,3 @@ function doAuth() {
         }, 100);
     });
 }
-
-const getFromChromeStorageLocal = async (key) => {
-    return new Promise((resolve, reject) => {
-        chrome.storage.local.get(key, function (result) {
-            if (result[key] === undefined) {
-                reject();
-            }
-            else {
-                resolve(result[key]);
-            }
-        });
-    });
-};

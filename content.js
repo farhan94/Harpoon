@@ -354,7 +354,7 @@ async function check(){
 
 let observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutationRecord) {    //runs for each change to target declared below
-        console.log("detected change")
+        // console.log("detected change")
         if(location.href.includes("opensea.io/activity")) {
             // activity flow
             initActivityV2();
