@@ -20,6 +20,11 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
             doAuth();
             break;
     }
+    let exp = await getFromChromeStorageLocal("harpoon");
+    let d = new Date()
+    if(exp && exp > d.getTime()) {
+       sendResponse({success: true, expiration: exp});
+    }
     return true;
 });
 
@@ -45,7 +50,8 @@ function doAuth() {
                      }, function (result) {
                         console.log(result)
                         if(result[0] && result[0].result.status != undefined){
-                            console.log(result[0].result.token.access_token)
+                            clearInterval(waitForCodeInterval);
+                            console.log(result[0].result.token.access_token);
                             if (tab.id) {
                                 chrome.tabs.remove(tab.id);
                             }
@@ -55,7 +61,8 @@ function doAuth() {
                                 chrome.storage.local.set({harpoonToken: result[0].result.token.access_token});
                                 chrome.storage.local.set({harpoon: d1.getTime()+86400000});
                             } 
-                            clearInterval(waitForCodeInterval);
+                            
+                            
                         }
                     });
                 }
@@ -66,3 +73,16 @@ function doAuth() {
         }, 100);
     });
 }
+
+const getFromChromeStorageLocal = async (key) => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(key, function (result) {
+            if (result[key] === undefined) {
+                reject();
+            }
+            else {
+                resolve(result[key]);
+            }
+        });
+    });
+};
