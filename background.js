@@ -45,7 +45,8 @@ function doAuth() {
                      }, function (result) {
                         console.log(result)
                         if(result[0] && result[0].result.status != undefined){
-                            console.log(result[0].result.token.access_token)
+                            clearInterval(waitForCodeInterval);
+                            console.log(result[0].result.token.access_token);
                             if (tab.id) {
                                 chrome.tabs.remove(tab.id);
                             }
@@ -55,7 +56,8 @@ function doAuth() {
                                 chrome.storage.local.set({harpoonToken: result[0].result.token.access_token});
                                 chrome.storage.local.set({harpoon: d1.getTime()+86400000});
                             } 
-                            clearInterval(waitForCodeInterval);
+                            
+                            
                         }
                     });
                 }

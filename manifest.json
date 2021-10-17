@@ -11,6 +11,7 @@
     "content_scripts" : [
         {
             "run_at": "document_idle",
+            "css": ["styles.css"],
             "js": ["content.js"],
             "matches": ["*://*.opensea.io/*"]
         }
@@ -20,6 +21,12 @@
     },
     "action": {
         "default_popup": "./html/popup.html"
-    }
+    },
+    "web_accessible_resources": [
+        {
+          "resources": [ "styles.css" ],
+          "matches": ["*://*.opensea.io/*"]
+        }
+    ]
 
 }

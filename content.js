@@ -23,7 +23,7 @@ async function init(){
     if(auth && auth > d.getTime()) {
         if(location.href.includes("opensea.io/activity")) {
             // activity flow
-            initActivity()
+            initActivityV2()
         } else if (location.href.includes("opensea.io/collection")) {
             // collection flow
             return
@@ -39,8 +39,49 @@ async function init(){
     
 }
 
+async function initActivityV2() {
+    //get the list element - we will go through the elements of this list and prepend the links
+    let panel = document.querySelector("[role=list]");
+    while(panel == null){
+        await delay(500)
+        panel = document.querySelector("[role=list]");
+    }
+    // console.log("panel found");
+    let elements = panel.querySelectorAll("[role=listitem]");
+    while(elements == null || elements.length == 0 || elements[0].children.length == 0){
+        await delay(500)
+        elements = panel.querySelectorAll("[role=listitem]");
+    }
+    for( let i = 0; i < elements.length; i++) {
+        let ele = elements[i];
+        let harpoonList = ele.getElementsByClassName("buy-now-harpoon");
+        if (harpoonList.length == 0){
+            let links = ele.getElementsByTagName("a");
+            let link = document.createElement("a");
+            link.id = "purchase";
+            link.onclick = function() {autoCheckOut(links[1])};
+            link.title = "Purchase";
+            link.href = "javascript:void(0);"; //linksList[0].href
+            link.textContent = "Buy Now";
+            link.className = "buy-now-harpoon";
+            let insertParent = ele.children[0].children[0];
+            insertParent.insertBefore(link, insertParent.children[2]);
+            // ele.prepend(link);
+        }
+    }
+
+    // let targetList = document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 hDhtYs ActivitySearch--history"); //set the observer; does panel change classes?
+    // while(targetList.length == 0) {
+    //     await delay(500)
+    //     targetList = document.getElementsByClassName("Blockreact__Block-sc-1xf18x6-0 hDhtYs ActivitySearch--history");
+    // }
+    observer.observe(panel.parentElement.parentElement.parentElement, {childList: true, subtree: true });
+
+
+}
+
 async function initActivity() {
-    let panelList = document.getElementsByClassName("EventHistory--Panel")
+    let panelList = document.getElementsByClassName("EventHistory--Panel");
     while(panelList.length == 0) {
         await delay(500)
         panelList = document.getElementsByClassName("EventHistory--Panel")
@@ -52,7 +93,7 @@ async function initActivity() {
     }
     console.log("panel found")
     let target = panel[0]
-    observer.observe(target, {childList : true, subtree : true })
+    // observer.observe(target, {childList : true, subtree : true })
 
 
     let elements = document.getElementsByClassName("Row--cell Row--cellIsSpaced EventHistory--item-col")
@@ -63,6 +104,7 @@ async function initActivity() {
     }
     // console.log("got ele")
     // console.log(elements.length)
+    // let style = getStyle();
     for(let i = 0; i < elements.length; i++) {
 
         let linksList = elements[i].getElementsByTagName("a")
@@ -74,7 +116,7 @@ async function initActivity() {
             link.title = "Purchase"
             link.href = "javascript:void(0);" //linksList[0].href
             link.textContent = "Buy Now"
-            link.className = "purchase"
+            link.className = "buy-now-harpoon"
             elements[i].appendChild(link)
         }
     }
@@ -97,7 +139,7 @@ async function initCollection(){
     }
     //add purchase link to each item same logic as activity
     for(let i = 0; i < gridCells.length; i++) {
-        let purchaseLinks = gridCells[i].getElementsByClassName("purchase")
+        let purchaseLinks = gridCells[i].getElementsByClassName("buy-now-harpoon")
         if (purchaseLinks.length == 0) {
                 
             let linksList = gridCells[i].getElementsByTagName("a")
@@ -108,14 +150,14 @@ async function initCollection(){
             link.title = "Purchase"
             link.href = "javascript:void(0);" //linksList[0].href
             link.textContent = "Buy Now"
-            link.className = "purchase"
+            link.className = "buy-now-harpoon"
             gridCells[i].appendChild(link);
         }
         
     }
 
     // TODO: set the observer to observe grid for changes and add links to them
-    observer.observe(grid, {childList : true, subtree : true })
+    // observer.observe(grid, {childList : true, subtree : true })
 
 }
 
@@ -125,9 +167,8 @@ async function initAsset() {
         await delay(1000)
         return;
     }
-    window.scrollTo(0, 0);
     let tradeStation = document.getElementsByClassName("TradeStation--main");
-    let retires = 0
+    let retries = 0
     while (tradeStation.length == 0) {
         await delay(100)
         retries++;
@@ -142,6 +183,7 @@ async function initAsset() {
     btn.id = "harpoon-qb";
     btn.onclick = function() { check() };
     tradeStation[0].prepend(btn);
+    window.scrollTo(0, 0);
 }
 
 async function monitorForPageChange() {
@@ -152,6 +194,7 @@ async function monitorForPageChange() {
 
             await chrome.storage.local.get(["pageChanged"], async function(result){
                 if(result.pageChanged != null && result.pageChanged == true){
+                    chrome.storage.local.set({"pageChanged": false});
                     await init()
                 }
             });
@@ -180,12 +223,35 @@ function changeActivity(mutationRecord) {
                         link.title = "Purchase"
                         link.href = "javascript:void(0);"
                         link.textContent = "Buy Now"
+                        link.className("buy-now-harpoon");
                         itemList[i].appendChild(link) //created and added a button to kick off purchase script
                     }
                 }
-                
-
                 }
+            }
+        }
+    });
+}
+
+function changeActivityV2(mutationRecord) {
+    mutationRecord.addedNodes.forEach(function(addedNode) {
+        if(addedNode.nodeType === 1) {  // making sure the Node we are getting is an HTML element
+            // if (addedNode.className === "styles__StyledLink-sc-l6elh8-0 ekTmzq Blockreact__Block-sc-1xf18x6-0 Flexreact__Flex-sc-1twd32i-0 Itemreact__ItemBase-sc-1idymv7-0 styles__FullRowContainer-sc-12irlp3-0 Gweql jYqxGr fozYbC lcvzZN fresnel-greaterThanOrEqual-lg") {
+            if (addedNode.attributes.role && addedNode.attributes.role.value == 'listitem'){
+                let linksList = addedNode.getElementsByTagName("a") //get the link element for the item
+                if(linksList.length == 0) {
+                    // console.log("detected observed")
+                    let link = document.createElement("a")
+                    link.id = "purchase"
+                    link.onclick = function() {autoCheckOut(addedNode)}
+                    link.title = "Purchase"
+                    link.href = "javascript:void(0);"
+                    link.textContent = "Buy Now"
+                    link.className("buy-now-harpoon");
+                    itemList[i].prepend(link) //created and added a button to kick off purchase script
+                }
+            
+                
             }
         }
     });
@@ -198,7 +264,7 @@ function changeCollection(mutationRecord) {
 
             if (gridCellContentList.length != 0) {
                 //gridcell should have something in it
-                let purchaseLinks = gridCellContentList[0].getElementsByClassName("purchase")
+                let purchaseLinks = gridCellContentList[0].getElementsByClassName("buy-now-harpoon")
                 if (purchaseLinks.length == 0) {
                         
                     let linksList = gridCellContentList[0].getElementsByTagName("a")
@@ -209,7 +275,7 @@ function changeCollection(mutationRecord) {
                     link.title = "Purchase"
                     link.href = "javascript:void(0);" //linksList[0].href
                     link.textContent = "Buy Now"
-                    link.className = "purchase"
+                    link.className = "buy-now-harpoon"
                     gridCellContentList[0].appendChild(link)
                 }
             }
@@ -288,13 +354,14 @@ async function check(){
 
 let observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutationRecord) {    //runs for each change to target declared below
-        console.log("detected change")
+        // console.log("detected change")
         if(location.href.includes("opensea.io/activity")) {
             // activity flow
-            changeActivity(mutationRecord)
+            initActivityV2();
         } else if (location.href.includes("opensea.io/collection")) {
             // collection flow
-            changeCollection(mutationRecord)
+            return
+            // changeCollection(mutationRecord)
         } else {
             return
         }
@@ -313,6 +380,8 @@ const getFromChromeStorageLocal = async (key) => {
         });
     });
 };
+
+
 
 init()
 monitorForPageChange()
