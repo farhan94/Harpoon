@@ -21,7 +21,7 @@ async function init(){
     let auth = await getFromChromeStorageLocal("harpoon");
     let d = new Date()
     if(auth && auth > d.getTime()) {
-        if(location.href.includes("opensea.io/activity")) {
+        if(location.href.includes("opensea.io/activity") || location.href.includes("tab=activity")) {
             // activity flow
             initActivityV2()
         } else if (location.href.includes("opensea.io/collection")) {
@@ -355,7 +355,7 @@ async function check(){
 let observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutationRecord) {    //runs for each change to target declared below
         // console.log("detected change")
-        if(location.href.includes("opensea.io/activity")) {
+        if(location.href.includes("opensea.io/activity") || location.href.includes("tab=activity")) {
             // activity flow
             initActivityV2();
         } else if (location.href.includes("opensea.io/collection")) {
