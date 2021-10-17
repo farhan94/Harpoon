@@ -59,7 +59,11 @@ async function initActivityV2() {
             let links = ele.getElementsByTagName("a");
             let link = document.createElement("a");
             link.id = "purchase";
-            link.onclick = function() {autoCheckOut(links[1])};
+            if(location.href.includes("opensea.io/activity")) {
+                link.onclick = function() {autoCheckOut(links[1])};
+            } else {
+                link.onclick = function() {autoCheckOut(links[0])};
+            }
             link.title = "Purchase";
             link.href = "javascript:void(0);"; //linksList[0].href
             link.textContent = "Buy Now";
