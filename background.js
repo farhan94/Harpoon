@@ -54,7 +54,7 @@ function doAuth() {
                                 var d1 = new Date();
                                 d1.getTime()
                                 chrome.storage.local.set({harpoonToken: result[0].result.token.access_token});
-                                chrome.storage.local.set({harpoon: d1.getTime()+86400000});
+                                chrome.storage.local.set({harpoon: d1.getTime()+172800000});
                             } 
                             
                             

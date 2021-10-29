@@ -55,18 +55,31 @@ async function initActivityV2() {
     for( let i = 0; i < elements.length; i++) {
         let ele = elements[i];
         let harpoonList = ele.getElementsByClassName("buy-now-harpoon");
-        if (harpoonList.length == 0){
-            let links = ele.getElementsByTagName("a");
-            let link = document.createElement("a");
-            link.id = "purchase";
-            link.onclick = function() {autoCheckOut(links[1])};
-            link.title = "Purchase";
-            link.href = "javascript:void(0);"; //linksList[0].href
-            link.textContent = "Buy Now";
-            link.className = "buy-now-harpoon";
-            let insertParent = ele.children[0].children[0];
-            insertParent.insertBefore(link, insertParent.children[2]);
-            // ele.prepend(link);
+        let harpoonNoList = ele.getElementsByClassName("dont-buy-now-harpoon");
+        if (harpoonList.length == 0 && harpoonNoList.length == 0){
+            if (ele.innerText.includes("List")){
+                
+                let links = ele.getElementsByTagName("a");
+                let link = document.createElement("a");
+                let assetLink = location.href.includes("tab=activity") ? links[0] : links[1];
+                link.id = "purchase";
+                link.onclick = function() {autoCheckOut(assetLink)};
+                link.title = "Purchase";
+                link.href = "javascript:void(0);"; //linksList[0].href
+                link.textContent = "Buy Now";
+                link.className = "buy-now-harpoon";
+                let insertParent = ele.children[0].children[0];
+                insertParent.insertBefore(link, insertParent.children[3]);
+                // ele.prepend(link);
+                
+            } else { //for formatting purposes
+                let link = document.createElement("a");
+                link.href = "javascript:void(0);";
+                link.className = "dont-buy-now-harpoon";
+                let insertParent = ele.children[0].children[0];
+                insertParent.insertBefore(link, insertParent.children[3]);
+
+            }
         }
     }
 
@@ -181,6 +194,7 @@ async function initAsset() {
     let btn = document.createElement("button");
     btn.innerHTML = "Quick Buy";
     btn.id = "harpoon-qb";
+    btn.className = "buy-now-harpoon"
     btn.onclick = function() { check() };
     tradeStation[0].prepend(btn);
     window.scrollTo(0, 0);
