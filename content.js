@@ -55,8 +55,10 @@ async function initActivityV2() {
     for( let i = 0; i < elements.length; i++) {
         let ele = elements[i];
         let harpoonList = ele.getElementsByClassName("buy-now-harpoon");
-        if (ele.innerText.includes("List")){
-            if (harpoonList.length == 0){
+        let harpoonNoList = ele.getElementsByClassName("dont-buy-now-harpoon");
+        if (harpoonList.length == 0 && harpoonNoList.length == 0){
+            if (ele.innerText.includes("List")){
+                
                 let links = ele.getElementsByTagName("a");
                 let link = document.createElement("a");
                 let assetLink = location.href.includes("tab=activity") ? links[0] : links[1];
@@ -67,8 +69,16 @@ async function initActivityV2() {
                 link.textContent = "Buy Now";
                 link.className = "buy-now-harpoon";
                 let insertParent = ele.children[0].children[0];
-                insertParent.insertBefore(link, insertParent.children[2]);
+                insertParent.insertBefore(link, insertParent.children[3]);
                 // ele.prepend(link);
+                
+            } else { //for formatting purposes
+                let link = document.createElement("a");
+                link.href = "javascript:void(0);";
+                link.className = "dont-buy-now-harpoon";
+                let insertParent = ele.children[0].children[0];
+                insertParent.insertBefore(link, insertParent.children[3]);
+
             }
         }
     }
